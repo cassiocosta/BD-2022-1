@@ -1,13 +1,13 @@
--- FUSP que inclua e autalize livros 
+-- FUSP que inclua e autalize e delete livros 
 DROP PROCEDURE IF EXISTS crud_livros_proc;
 DELIMITER $$
 CREATE PROCEDURE 
 	crud_livros_proc(
 		p_oper char(1),
 		p_id int, 	
-		p_titulo varchar(45),
+		in p_titulo varchar(45),
         p_data_lancamento date,
-        p_editora_id int, 
+        p_editora_id int , 
         p_assunto_id char(1),
         p_preco decimal(18,2))
 BEGIN
@@ -28,6 +28,10 @@ DECLARE falha boolean DEFAULT false;
             preco = p_preco
 		where	id = p_id;
         set mensagem = 'Atualizado ';
+        
+	ELSEIF(p_oper='D') THEN
+		delete from livros where id=p_id;
+		set mensagem = 'Deletado ';
 	ELSE
 		set falha = true;
 		set mensagem = 'Informe I para inserir e U para atualizar';
@@ -36,11 +40,12 @@ DECLARE falha boolean DEFAULT false;
     IF(falha) THEN
 		select mensagem;
     ELSE
-		select concat(mensagem,'com sucesso.');
+		select concat(mensagem,'com sucesso.') as mensagem;
 	END IF;
 END $$
 DELIMITER ;
 
 CALL crud_livros_proc('U',2,'LP em C - 2022','2022-06-22',1,'B',98); 
+CALL crud_livros_proc('D',6,'',null,null,null,null);
 
 select * from livros
