@@ -70,20 +70,32 @@ DELIMITER $$
 CREATE TRIGGER trigger_update_sal_after_update AFTER UPDATE ON funcionarios
 	FOR EACH ROW
 BEGIN	
+	DECLARE tipo varchar(30);
+    
 	update setores set total_salario = 
 		total_salario + (NEW.salario - OLD.salario)
     where id = NEW.id_setor;   
-    
-    insert into logs2 (message,data_log) 
-		values(concat('Salário do ', 
-					   NEW.nome, 
-					 ' foi atualizado para R$ ',
-                     new.salario), current_timestamp);
+    -- só adicionar o log e teve redução ou aumento de salário.
+    IF(NEW.SALARIO <> OLD.salario) THEN
+		IF(NEW.salario > OLD.salario) THEN
+			SET tipo = ' aumentou ';
+        ELSE
+			SET tipo = ' reduziu ';
+        END IF;
+        
+		insert into logs2 (message,data_log) 
+			values(concat('Salário do ', 
+						   NEW.nome,
+                           tipo,
+						 'para R$ ',
+						 NEW.salario), current_timestamp);
+	END IF;
 END $$
 DELIMITER ;
+
  select * from setores ;
 select * from funcionarios ;
-update funcionarios set salario = 12000
+update funcionarios set salario = 10000
 where id = 6;
 select * from logs2;
 -- criar um log para guardar as atualizações de salários
