@@ -83,7 +83,7 @@ BEGIN
 			SET tipo = ' reduziu ';
         END IF;
         
-		insert into logs2 (message,data_log) 
+	insert into logs2 (message,data_log) 
 			values(concat('Salário do ', 
 						   NEW.nome,
                            tipo,
